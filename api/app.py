@@ -44,7 +44,7 @@ def create_product():
     new_prod = request.get_json()
     #Se crea la query en base a los datos pasados por el endpoint.
     #Los mismos deben viajar en el body en formato JSON
-    query = f"""INSERT INTO products (name, price, descr) VALUES ('{new_prod["name"]}', {new_prod["price"]}), '{new_prod["descr"]}';"""
+    query = f"""INSERT INTO products (name, price, descr) VALUES ('{new_prod["name"]}', {new_prod["price"]}, '{new_prod["descr"]}');"""
     try:
         result = conn.execute(text(query))
         #Una vez ejecutada la consulta, se debe hacer commit de la misma para que
@@ -64,8 +64,9 @@ def update_product(id):
     mod_prod = request.get_json()
     #De la misma manera que con el metodo POST los datos a modificar deberán
     #Ser enviados por medio del body de la request
-    query = f"""UPDATE products SET name = '{mod_prod['name']}'
-                {f", email = '{mod_prod['email']}'" if "email" in mod_prod else ""}
+    query = f"""UPDATE products SET name = '{mod_prod['name']}',
+                descr = '{mod_prod['descr']}',
+                price = '{mod_prod['price']}'
                 WHERE id = {id};
             """
     query_validation = f"SELECT * FROM products WHERE id = {id};"
@@ -77,7 +78,7 @@ def update_product(id):
             conn.close()
         else:
             conn.close()
-            return jsonify({'message': "El usuario no existe"}), 404
+            return jsonify({'message': "El producto no existe"}), 404
     except SQLAlchemyError as err:
         return jsonify({'message': str(err.__cause__)})
     return jsonify({'message': 'se ha modificado correctamente' + query}), 200
@@ -95,16 +96,15 @@ def get_prod(id):
         conn.close()
     except SQLAlchemyError as err:
         return jsonify(str(err.__cause__))
-    print(result.first())
     if result.rowcount !=0:
         data = {}
         row = result.first()
-        data['id'] = row.id
-        data['name'] = row.name
-        data['price'] = row.price
-        data['descr'] = row.descr
+        data['id'] = row[0]
+        data['name'] = row[1]
+        data['price'] = row[2]
+        data['descr'] = row[3]
         return jsonify(data), 200
-    return jsonify({"message": "El usuario no existe"}), 404
+    return jsonify({"message": "El producto no existe"}), 404
 
 
 @app.route('/products/<int:id>', methods = ['DELETE'])
