@@ -4,7 +4,7 @@ curl --request GET http://localhost:5000/products/2;
 
 curl -H "Content-Type: application/json" \
 --request POST  \
---data '{"name": "Milanga", "price": 8.23, "descr": "Una milanesa"}' \
+--data '{"name": "Papas fritas", "price": 3.23, "descr": "Buenas papas"}' \
 http://localhost:5000/products;
 
 curl -H "Content-Type: application/json" \
